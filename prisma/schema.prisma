@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 商品テーブル
+model Item {
+  id String @id @default(uuid()) @db.Uuid
+  name String @db.VarChar(255)
+  price Int
+  description String?
+  status ItemStatus @default(ON_SALE)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @db.Timestamp(0)
+  userId String @db.Uuid
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// 商品ステータス
+enum ItemStatus {
+  ON_SALE
+  SOLD_OUT
+}
+
+// ユーザーテーブル
+model User {
+  id String @id @default(uuid()) @db.Uuid
+  name String @db.VarChar(255)
+  email String @unique @db.VarChar(255)
+  password String @db.VarChar(255)
+  status UserStatus @default(FREE)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @db.Timestamp(0)
+
+  Item Item[]
+}
+
+// ユーザーステータス
+enum UserStatus {
+  FREE
+  PREMIUM
+}
